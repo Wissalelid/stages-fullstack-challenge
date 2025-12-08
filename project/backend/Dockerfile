@@ -16,8 +16,6 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-RUN echo "upload_max_filesize = 2M" > /usr/local/etc/php/conf.d/uploads.ini \
-    && echo "post_max_size = 2M" >> /usr/local/etc/php/conf.d/uploads.ini
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -47,5 +45,9 @@ RUN echo '<VirtualHost *:80>\n\
 
 EXPOSE 80
 
+# Copy PHP custom configuration
+COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
+
 CMD ["apache2-foreground"]
+
 
