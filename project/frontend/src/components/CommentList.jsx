@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { getComments, createComment, deleteComment } from '../services/api';
 
 function CommentList({ articleId }) {
@@ -23,10 +24,7 @@ function CommentList({ articleId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!newComment.trim()) {
-      return;
-    }
+    if (!newComment.trim()) return;
 
     try {
       await createComment({
@@ -34,9 +32,9 @@ function CommentList({ articleId }) {
         user_id: 1, // Mock user ID
         content: newComment,
       });
-      
+
       setNewComment('');
-      fetchComments(); // Refresh comments
+      fetchComments();
     } catch (error) {
       alert('Erreur lors de l\'ajout du commentaire');
       console.error('Error creating comment:', error);
@@ -46,7 +44,7 @@ function CommentList({ articleId }) {
   const handleDelete = async (commentId) => {
     try {
       await deleteComment(commentId);
-      fetchComments(); // Refresh comments
+      fetchComments();
     } catch (error) {
       alert('Erreur lors de la suppression du commentaire: ' + error.message);
       console.error('Error deleting comment:', error);
@@ -76,8 +74,9 @@ function CommentList({ articleId }) {
                 position: 'relative'
               }}
             >
-              <div 
-                dangerouslySetInnerHTML={{ __html: comment.content }}
+              {/* ✅ Contenu sécurisé avec DOMPurify */}
+              <div
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.content) }}
                 style={{ marginBottom: '0.5rem' }}
               />
               
@@ -122,4 +121,3 @@ function CommentList({ articleId }) {
 }
 
 export default CommentList;
-

@@ -11,28 +11,29 @@ class ArticleController extends Controller
     /**
      * Display a listing of articles.
      */
-    public function index(Request $request)
-    {
-        $articles = Article::all();
+    public function index(Request $request){
 
-        $articles = $articles->map(function ($article) use ($request) {
-            if ($request->has('performance_test')) {
-                usleep(30000); // 30ms par article pour simuler le coût du N+1
-            }
+    // Eager loading pour éviter le N+1
+    $articles = Article::with(['author', 'comments'])->get();
 
-            return [
-                'id' => $article->id,
-                'title' => $article->title,
-                'content' => substr($article->content, 0, 200) . '...',
-                'author' => $article->author->name,
-                'comments_count' => $article->comments->count(),
-                'published_at' => $article->published_at,
-                'created_at' => $article->created_at,
-            ];
-        });
+    $articles = $articles->map(function ($article) use ($request) {
+        if ($request->has('performance_test')) {
+            usleep(30000); // 30ms par article pour simuler le coût du N+1
+        }
 
-        return response()->json($articles);
-    }
+        return [
+            'id' => $article->id,
+            'title' => $article->title,
+            'content' => substr($article->content, 0, 200) . '...',
+            'author' => $article->author->name,
+            'comments_count' => $article->comments->count(),
+            'published_at' => $article->published_at,
+            'created_at' => $article->created_at,
+        ];
+    });
+
+    return response()->json($articles);
+}
 
     /**
      * Display the specified article.
@@ -64,6 +65,8 @@ class ArticleController extends Controller
     /**
      * Search articles.
      */
+
+
     public function search(Request $request)
 {
     $query = $request->input('q');
@@ -72,8 +75,9 @@ class ArticleController extends Controller
         return response()->json([]);
     }
 
-    $articles = Article::where('title', 'LIKE', "%{$query}%")
-        ->orWhere('content', 'LIKE', "%{$query}%")
+    // Recherche sensible aux accents avec collation utf8mb4_bin
+    $articles = Article::whereRaw('title COLLATE utf8mb4_bin LIKE ?', ['%' . $query . '%'])
+        ->orWhereRaw('content COLLATE utf8mb4_bin LIKE ?', ['%' . $query . '%'])
         ->get();
 
     $results = $articles->map(function ($article) {
@@ -87,6 +91,7 @@ class ArticleController extends Controller
 
     return response()->json($results);
 }
+
 
     /**
      * Store a newly created article.
