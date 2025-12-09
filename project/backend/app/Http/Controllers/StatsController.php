@@ -14,6 +14,7 @@ class StatsController extends Controller
      */
     public function index()
     {
+        // PERF-003 : commit personnel pour cache API
         $totalArticles = Article::count();
         $totalComments = Comment::count();
         $totalUsers = User::count();
