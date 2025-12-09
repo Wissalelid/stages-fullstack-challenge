@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+
 
 class ArticleController extends Controller
 {
@@ -15,14 +17,9 @@ class ArticleController extends Controller
      * Display a listing of articles.
      */
     public function index(Request $request)
-    {
-        $articles = Article::all();
-
-        $articles = $articles->map(function ($article) use ($request) {
-            if ($request->has('performance_test')) {
-                usleep(30000); // 30ms par article pour simuler le coût du N+1
-            }
-
+{
+    $articles = Cache::remember('articles.liste', 60, function () {
+        return Article::all()->map(function ($article) {
             return [
                 'id' => $article->id,
                 'title' => $article->title,
@@ -33,9 +30,15 @@ class ArticleController extends Controller
                 'created_at' => $article->created_at,
             ];
         });
-
-        return response()->json($articles);
+    });
+    if ($request->has('performance_test')) {
+        foreach ($articles as $_) {
+            usleep(30000); // simule le coût du N+1
+        }
     }
+
+    return response()->json($articles);
+}
 
     /**
      * Display the specified article.
@@ -132,6 +135,8 @@ class ArticleController extends Controller
         'image_path' => $imagePath,
         'published_at' => now(),
     ]);
+    Cache::forget('articles.liste');
+    Cache::forget('stats.globales');
 
     return response()->json($article, 201);
 }
@@ -192,6 +197,9 @@ class ArticleController extends Controller
     $article->update(array_merge($validated, [
         'image_path' => json_encode($imagePaths),
     ]));
+    Cache::forget('articles.liste');
+    Cache::forget('stats.globales');
+
 
     return response()->json($article);
 }
@@ -214,6 +222,10 @@ class ArticleController extends Controller
     }
 
     $article->delete();
+    
+    Cache::forget('articles.liste');
+    Cache::forget('stats.globales');
+
 
     return response()->json(['message' => 'Article deleted successfully']);
 }
