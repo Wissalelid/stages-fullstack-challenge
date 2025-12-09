@@ -1,104 +1,39 @@
-# 🚀 Challenge Technique - Développeur Full Stack
+# 📝 Portfolio de Tickets - Wissal Elidrissi
 
-Ce challenge simule une situation réelle que vous rencontrerez en entreprise : **rejoindre une équipe et résoudre des problèmes sur une application existante**.
-
-Contrairement aux exercices traditionnels où vous créez une application from scratch, ici vous devez :
-- ✅ Comprendre du code existant
-- 🐛 Identifier et corriger des bugs
-- 🔒 Résoudre des failles de sécurité
-- ⚡ Optimiser les performances
-- 🔧 Mettre à jour des dépendances
-
-**C'est exactement ce que vous ferez 80% du temps en tant que développeur !**
+Bienvenue sur mon fork du challenge **Fullstack Stages**.  
+Ce README documente tous les tickets que j'ai réalisés, mes progrès et ma méthodologie de travail.
 
 ---
 
-## 🎯 Objectif
-
-Vous recevez une **plateforme de gestion de blog** fonctionnelle (Laravel + React + MySQL) avec plusieurs problèmes à résoudre.
-
-**Mission** : Résoudre au moins **70% des tickets** du backlog pour être invité à l'entretien oral.
-
----
-
-## 📁 Structure du challenge
-
-```
-/fullstack-challenge/
-├── README.md                 ← Vous êtes ici
-├── CHALLENGE.md              ← Description détaillée du challenge
-├── TICKETS.md                ← Liste des tickets à résoudre (votre mission)
-└── /project/                 ← Le code source de l'application
-```
+## 🎯 Objectif Personnel
+- Résoudre les tickets fonctionnels, sécurité et performance.
+- Documenter chaque ticket résolu avec branche et commit.
+- Atteindre au moins 7-8 tickets pour valider le challenge (~70%).
 
 ---
 
-## 🚦 Démarrage rapide
+## 📊 Tickets Résolus par Wissal Elidrissi
 
-### 1. Lisez la description complète
-👉 **[Consultez CHALLENGE.md](./CHALLENGE.md)** pour comprendre le contexte et les règles
+| Ticket | Description | Branch / Commit | Statut |
+|--------|------------|----------------|--------|
+| BUG-001 | Recherche insensible aux accents | BUG-001 / `<commit>` | ✅ Terminé |
+| BUG-002 | Correction suppression dernier commentaire | BUG-002 / `<commit>` | ✅ Terminé |
+| BUG-003 | Upload images > 2MB corrigé | BUG-003 / `<commit>` | ✅ Terminé |
+| BUG-004 | Dates affichées en français et timezone CET | BUG-004 / `<commit>` | ✅ Terminé |
+| SEC-001 | Mots de passe hashés (sécurité) | SEC-001 / `<commit>` | ✅ Terminé |
+| SEC-002 | Injection SQL corrigée | SEC-002 / `<commit>` | ✅ Terminé |
+| SEC-003 | CORS + XSS sécurisé | SEC-003 / `<commit>` | ✅ Terminé |
+| PERF-001 | Problème N+1 résolu | PERF-001 / `<commit>` | ✅ Terminé |
+| PERF-002 | Optimisation images backend + frontend | PERF-002 / 0e81630 | ✅ Terminé |
+| PERF-003 | Cache API mis en place | PERF-003 / `<commit>` | ✅ Terminé |
 
-### 2. Consultez les tickets à résoudre
-👉 **[Consultez TICKETS.md](./TICKETS.md)** pour voir la liste des problèmes à corriger
-
-### 3. Forkez le repository (IMPORTANT - à faire en premier !)
-👉 **Forkez** https://github.com/voidagency/stages-fullstack-challenge.git sur votre compte GitHub
-
-Cliquez sur le bouton **"Fork"** en haut à droite du repository GitHub.
-
-> [!IMPORTANT]
-> **Fork privé obligatoire** : Vous devez rendre votre fork privé pour protéger votre travail.
-> Ajoutez ensuite **admin[at]void[dot]fr** comme collaborateur avec les droits de lecture (Settings > Collaborators).
-> 
-> ⚠️ Un fork public entraînera l'annulation de votre candidature.
-
-### 4. Clonez VOTRE fork et lancez l'application
-
-Suivez les instructions détaillées dans **[CHALLENGE.md](./CHALLENGE.md)** section "Instructions de Travail"
-
-### 5. Résolvez les tickets
-- Créez une branche par ticket (`BUG-001`, `SEC-002`, etc.)
-- Committez régulièrement avec des messages clairs
-- Créez une Pull Request pour chaque ticket résolu
-- Mergez vos PRs dans votre branche `main`
-
-### 6. Soumettez votre travail
-📌 **Livrable** : Lien vers votre fork GitHub avec toutes les PRs mergées
-
-Voir **[CHALLENGE.md](./CHALLENGE.md)** pour les détails du workflow Git
+> Chaque ticket possède un commit dédié avec un message clair et descriptif.
 
 ---
 
-## ⏱️ Durée
-
-**Format flexible** : Prenez le temps nécessaire, vous pouvez travailler en plusieurs sessions.
-
-Temps estimé : **8-10 heures** selon votre niveau.
-
----
-
-## 🆘 Besoin d'aide ?
-
-- 📖 Consultez la documentation officielle (Laravel, React, Docker)
-- 🤖 **Vous pouvez utiliser l'IA** (ChatGPT, Copilot, etc.) - voir CHALLENGE.md
-- 🔍 Google, StackOverflow sont vos amis
-
-## 🎓 Technologies utilisées
-
-- **Backend** : PHP 7.4, Laravel 10
-- **Frontend** : React 18, Vite
-- **Base de données** : MySQL 8
-- **Infrastructure** : Docker, Docker Compose
-
----
-
-## 🤝 Bonne chance !
-
-Ce challenge teste vos compétences réelles de développeur. Montrez-nous votre capacité à :
-- 🔍 Analyser et comprendre du code existant
-- 🐛 Débugger méthodiquement
-- 🛠️ Proposer des solutions robustes
-- 📝 Communiquer clairement vos choix
-
-**Prêt ? Rendez-vous dans [CHALLENGE.md](./CHALLENGE.md) !** 🚀
-
+## 🔹 Workflow Git Personnel
+1. **Créer une branche dédiée pour chaque ticket**
+```bash
+git checkout main
+git pull origin main
+git checkout -b NOM-TICKET
