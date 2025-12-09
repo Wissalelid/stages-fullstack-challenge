@@ -65,9 +65,12 @@ class ArticleController extends Controller
     /**
      * Search articles.
      */
-    public function search(Request $request){
+
+
+    public function search(Request $request)
+{
     $query = $request->input('q');
-    
+
     if (!$query) {
         return response()->json([]);
     }
@@ -87,7 +90,8 @@ class ArticleController extends Controller
     });
 
     return response()->json($results);
-   }
+}
+
 
     /**
      * Store a newly created article.
