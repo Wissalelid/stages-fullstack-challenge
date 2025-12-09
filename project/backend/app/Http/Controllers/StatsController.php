@@ -12,8 +12,15 @@ class StatsController extends Controller
 {
     public function index()
     {
+<<<<<<< HEAD
         // ⏳ Cache 5 minutes
         return Cache::remember('stats.globales', 300, function () {
+=======
+        // PERF-003 : commit personnel pour cache API
+        $totalArticles = Article::count();
+        $totalComments = Comment::count();
+        $totalUsers = User::count();
+>>>>>>> main
 
             $totalArticles = Article::count();
             $totalComments = Comment::count();

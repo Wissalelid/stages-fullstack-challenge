@@ -19,7 +19,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+    'http://localhost:3000',
+    'https://mon-domaine-prod.com'
+],
 
     'allowed_origins_patterns' => [],
 
