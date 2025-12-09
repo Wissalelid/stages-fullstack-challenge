@@ -5,35 +5,44 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class ArticleController extends Controller
 {
     /**
      * Display a listing of articles.
      */
-    public function index(Request $request){
+    public function index(Request $request)
+    {
+        // Version PERF-002 avec CACHE
+        $articles = Cache::remember('articles.liste', 60, function () {
+            return Article::with(['author', 'comments'])
+                ->get()
+                ->map(function ($article) {
+                    return [
+                        'id' => $article->id,
+                        'title' => $article->title,
+                        'content' => substr($article->content, 0, 200) . '...',
+                        'author' => $article->author->name,
+                        'comments_count' => $article->comments->count(),
+                        'published_at' => $article->published_at,
+                        'created_at' => $article->created_at,
+                    ];
+                });
+        });
 
-    // Eager loading pour éviter le N+1
-    $articles = Article::with(['author', 'comments'])->get();
-
-    $articles = $articles->map(function ($article) use ($request) {
+        // Test performance N+1 simulé
         if ($request->has('performance_test')) {
-            usleep(30000); // 30ms par article pour simuler le coût du N+1
+            foreach ($articles as $_) {
+                usleep(30000);
+            }
         }
 
-        return [
-            'id' => $article->id,
-            'title' => $article->title,
-            'content' => substr($article->content, 0, 200) . '...',
-            'author' => $article->author->name,
-            'comments_count' => $article->comments->count(),
-            'published_at' => $article->published_at,
-            'created_at' => $article->created_at,
-        ];
-    });
-
-    return response()->json($articles);
-}
+        return response()->json($articles);
+    }
 
     /**
      * Display the specified article.
@@ -65,8 +74,6 @@ class ArticleController extends Controller
     /**
      * Search articles.
      */
-
-
     public function search(Request $request)
 {
     $query = $request->input('q');
@@ -92,7 +99,6 @@ class ArticleController extends Controller
     return response()->json($results);
 }
 
-
     /**
      * Store a newly created article.
      */
@@ -102,16 +108,38 @@ class ArticleController extends Controller
             'title' => 'required|max:255',
             'content' => 'required',
             'author_id' => 'required|exists:users,id',
-            'image_path' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+
+            $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+
+            $resizedImage = Image::make($image)
+                ->resize(1200, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })
+                ->encode('webp', 80);
+
+            Storage::disk('public')->put('articles/' . $filename, $resizedImage);
+
+            $imagePath = 'articles/' . $filename;
+        }
 
         $article = Article::create([
             'title' => $validated['title'],
             'content' => $validated['content'],
             'author_id' => $validated['author_id'],
-            'image_path' => $validated['image_path'] ?? null,
+            'image_path' => $imagePath,
             'published_at' => now(),
         ]);
+
+        Cache::forget('articles.liste');
+        Cache::forget('stats.globales');
 
         return response()->json($article, 201);
     }
@@ -126,9 +154,40 @@ class ArticleController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|max:255',
             'content' => 'sometimes|required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
-        $article->update($validated);
+        // Supprimer anciennes images
+        if ($request->hasFile('image') && $article->image_path) {
+            Storage::disk('public')->delete($article->image_path);
+        }
+
+        // Nouveau traitement image
+        $imagePath = $article->image_path;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+
+            $filename = Str::uuid() . '.webp';
+
+            $resized = Image::make($image)
+                ->resize(1200, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })
+                ->encode('webp', 80);
+
+            Storage::disk('public')->put("articles/$filename", $resized);
+
+            $imagePath = "articles/$filename";
+        }
+
+        $article->update(array_merge($validated, [
+            'image_path' => $imagePath,
+        ]));
+
+        Cache::forget('articles.liste');
+        Cache::forget('stats.globales');
 
         return response()->json($article);
     }
@@ -139,9 +198,16 @@ class ArticleController extends Controller
     public function destroy($id)
     {
         $article = Article::findOrFail($id);
+
+        if ($article->image_path) {
+            Storage::disk('public')->delete($article->image_path);
+        }
+
         $article->delete();
+
+        Cache::forget('articles.liste');
+        Cache::forget('stats.globales');
 
         return response()->json(['message' => 'Article deleted successfully']);
     }
 }
-
