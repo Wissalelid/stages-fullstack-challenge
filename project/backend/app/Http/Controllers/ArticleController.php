@@ -75,29 +75,29 @@ class ArticleController extends Controller
      * Search articles.
      */
     public function search(Request $request)
-    {
-        $query = $request->input('q');
+{
+    $query = $request->input('q');
 
-        if (!$query) {
-            return response()->json([]);
-        }
-
-        // Version correcte avec collation
-        $articles = Article::whereRaw('title COLLATE utf8mb4_bin LIKE ?', ['%' . $query . '%'])
-            ->orWhereRaw('content COLLATE utf8mb4_bin LIKE ?', ['%' . $query . '%'])
-            ->get();
-
-        $results = $articles->map(function ($article) {
-            return [
-                'id' => $article->id,
-                'title' => $article->title,
-                'content' => substr($article->content, 0, 200),
-                'published_at' => $article->published_at,
-            ];
-        });
-
-        return response()->json($results);
+    if (!$query) {
+        return response()->json([]);
     }
+
+    // Recherche sensible aux accents avec collation utf8mb4_bin
+    $articles = Article::whereRaw('title COLLATE utf8mb4_bin LIKE ?', ['%' . $query . '%'])
+        ->orWhereRaw('content COLLATE utf8mb4_bin LIKE ?', ['%' . $query . '%'])
+        ->get();
+
+    $results = $articles->map(function ($article) {
+        return [
+            'id' => $article->id,
+            'title' => $article->title,
+            'content' => substr($article->content, 0, 200),
+            'published_at' => $article->published_at,
+        ];
+    });
+
+    return response()->json($results);
+}
 
     /**
      * Store a newly created article.
